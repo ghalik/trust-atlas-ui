@@ -1,42 +1,151 @@
-﻿import { useEffect, useRef, useState } from "react";
-import { createAutocomplete } from "../lib/google";
-import { useNavigate } from "react-router-dom";
+﻿import React, { useEffect, useMemo, useRef, useState } from "react";
+import debounce from "just-debounce-it";
+import { Loader } from "@googlemaps/js-api-loader";
 
-export default function SearchBar(){
+type Suggestion = {
+  description: string;
+  place_id: string;
+};
+
+type Props = {
+  onSubmit?: (query: string, placeId?: string) => void;
+};
+
+export default function SearchBar({ onSubmit }: Props) {
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const [items, setItems] = useState<Suggestion[]>([]);
+  const [hasPlaces, setHasPlaces] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [loading, setLoading] = useState(false);
-  const [query, setQuery] = useState("");
-  const nav = useNavigate();
 
-  useEffect(()=>{
-    let ac: google.maps.places.Autocomplete | null = null;
-    (async ()=>{
-      if (!inputRef.current) return;
-      ac = await createAutocomplete(inputRef.current);
-      ac.addListener("place_changed", ()=>{
-        const place = ac!.getPlace();
-        if (place.place_id) nav(`/place/${place.place_id}`);
-      });
-    })();
-    return ()=>{ ac = null; };
-  },[nav]);
+  // Load Google Places (optional if key present)
+  useEffect(() => {
+    const key = import.meta.env.VITE_GOOGLE_MAPS_KEY as string | undefined;
+    if (!key) return;
+    const loader = new Loader({ apiKey: key, libraries: ["places"] });
+    loader
+      .load()
+      .then(() => setHasPlaces(true))
+      .catch(() => setHasPlaces(false));
+  }, []);
+
+  const fetchPredictions = useMemo(
+    () =>
+      debounce((value: string) => {
+        if (!hasPlaces || !value.trim()) {
+          setItems([]);
+          return;
+        }
+        // @ts-ignore
+        const svc = new google.maps.places.AutocompleteService();
+        svc.getPlacePredictions(
+          { input: value, types: ["establishment", "geocode"] },
+          (preds) => {
+            if (!preds || !Array.isArray(preds)) {
+              setItems([]);
+              return;
+            }
+            setItems(
+              preds.slice(0, 8).map((p) => ({
+                description: p.description,
+                place_id: p.place_id!,
+              }))
+            );
+            setOpen(true);
+            setActive(0);
+          }
+        );
+      }, 220),
+    [hasPlaces]
+  );
+
+  useEffect(() => {
+    if (!hasPlaces) return;
+    if (!q.trim()) {
+      setItems([]);
+      return;
+    }
+    fetchPredictions(q);
+  }, [q, hasPlaces, fetchPredictions]);
+
+  function submit(query: string, placeId?: string) {
+    onSubmit?.(query, placeId);
+    setOpen(false);
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!open || items.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive((a) => Math.min(a + 1, items.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive((a) => Math.max(a - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const sel = items[active];
+      if (sel) {
+        setQ(sel.description);
+        submit(sel.description, sel.place_id);
+      } else {
+        submit(q);
+      }
+    } else if (e.key === "Escape") {
+      setOpen(false);
+    }
+  }
 
   return (
-    <div className="flex items-center gap-2">
-      <input
-        ref={inputRef}
-        value={query}
-        onChange={e=>setQuery(e.target.value)}
-        placeholder="Search a place (e.g., Nobu, Schwartz)"
-        className="w-full h-12 px-4 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-400"
-      />
-      <button
-        disabled={loading}
-        onClick={()=>{ /* rely on autocomplete selection; manual search optional */ }}
-        className="h-12 px-5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-      >
-        Search
-      </button>
+    <div className="relative w-full max-w-4xl">
+      <div className="flex gap-2">
+        <input
+          ref={inputRef}
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onFocus={() => items.length && setOpen(true)}
+          onKeyDown={onKeyDown}
+          placeholder="Search places, e.g., Nobu"
+          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:bg-slate-900 dark:border-slate-700"
+        />
+        <button
+          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-white font-medium shadow-sm hover:bg-indigo-700 active:bg-indigo-800"
+          onClick={() => submit(q)}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M21 21l-4.35-4.35M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+          Search
+        </button>
+      </div>
+
+      {/* Suggestions */}
+      {open && items.length > 0 && (
+        <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:bg-slate-900 dark:border-slate-700">
+          {items.map((it, i) => (
+            <button
+              key={it.place_id}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setQ(it.description);
+                submit(it.description, it.place_id);
+              }}
+              className={`block w-full text-left px-4 py-2 text-sm ${
+                i === active ? "bg-indigo-50 dark:bg-slate-800" : ""
+              }`}
+            >
+              {it.description}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Hint if key missing */}
+      {!hasPlaces && (
+        <p className="mt-2 text-xs text-slate-500">
+          Autocomplete disabled (no <code>VITE_GOOGLE_MAPS_KEY</code>). Typing + Search still works.
+        </p>
+      )}
     </div>
   );
 }

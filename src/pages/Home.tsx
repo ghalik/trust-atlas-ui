@@ -8,7 +8,7 @@ export default function Home(){
         <p className="text-neutral-600">Search once. See ratings + signals from multiple platforms. Understand the real picture.</p>
       </div>
       <div className="max-w-3xl mx-auto">
-        <SearchBar />
+        <SearchBar  onSubmit={(q, pid) => { const u = pid ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}&query_place_id=${pid}` : `https://www.google.com/maps/search/${encodeURIComponent(q)}`; window.open(u, "_blank"); }} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="card p-4">
@@ -27,3 +27,5 @@ export default function Home(){
     </div>
   );
 }
+
+
