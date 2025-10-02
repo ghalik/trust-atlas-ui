@@ -57,6 +57,17 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        platform: {
+          google: "hsl(var(--google))",
+          yelp: "hsl(var(--yelp))",
+          tripadvisor: "hsl(var(--tripadvisor))",
+          michelin: "hsl(var(--michelin))",
+          opentable: "hsl(var(--opentable))",
+          instagram: "hsl(var(--instagram))",
+          facebook: "hsl(var(--facebook))",
+          youtube: "hsl(var(--youtube))",
+          wikipedia: "hsl(var(--wikipedia))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
