@@ -1,40 +1,35 @@
-﻿import { Route, Routes, Link } from "react-router-dom";
-import Home from "./pages/Home";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import Index from "./pages/Index";
 import Place from "./pages/Place";
+import About from "./pages/About";
+import NotFound from "./pages/NotFound";
+import "maplibre-gl/dist/maplibre-gl.css";
 
-export default function App() {
-  return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900">
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
-        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center gap-3">
-          <Link to="/" className="font-semibold text-lg">Trust Atlas</Link>
-          <span className="text-sm text-neutral-500">Find places you can actually trust</span>
-          <div className="ml-auto">
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-4 py-6">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/place/:placeId" element={<Place />} />
-        </Routes>
-      </main>
-    </div>
-  );
-}
+const queryClient = new QueryClient();
 
-function ThemeToggle(){
-  const on = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
-  return (
-    <button
-      aria-label="Toggle dark mode"
-      onClick={()=>{
-        document.documentElement.classList.toggle("dark");
-      }}
-      className="rounded-full border px-3 py-1 text-sm hover:bg-neutral-100"
-    >
-      {on ? "Light" : "Dark"}
-    </button>
-  );
-}
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/p/:placeId" element={<Place />} />
+            <Route path="/about" element={<About />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
+);
+
+export default App;
