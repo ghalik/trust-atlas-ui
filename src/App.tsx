@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Place from "./pages/Place";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +21,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/p/:placeKey" element={<Place />} />
+            <Route path="/p/:placeId" element={<Place />} />
             <Route path="/about" element={<About />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
