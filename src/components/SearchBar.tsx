@@ -1,40 +1,42 @@
-import { useState } from "react";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+﻿import { useEffect, useRef, useState } from "react";
+import { createAutocomplete } from "../lib/google";
+import { useNavigate } from "react-router-dom";
 
-type SearchBarProps = {
-  initialValue?: string;
-  onSearch: (query: string) => void;
-};
+export default function SearchBar(){
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const nav = useNavigate();
 
-export function SearchBar({ initialValue = "", onSearch }: SearchBarProps) {
-  const [value, setValue] = useState(initialValue);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (value.trim()) {
-      onSearch(value.trim());
-    }
-  };
+  useEffect(()=>{
+    let ac: google.maps.places.Autocomplete | null = null;
+    (async ()=>{
+      if (!inputRef.current) return;
+      ac = await createAutocomplete(inputRef.current);
+      ac.addListener("place_changed", ()=>{
+        const place = ac!.getPlace();
+        if (place.place_id) nav(`/place/${place.place_id}`);
+      });
+    })();
+    return ()=>{ ac = null; };
+  },[nav]);
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto">
-      <div className="relative flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search a place (e.g., 'Nobu' or 'Schwartz')"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            className="pl-12 h-14 text-lg glass-card"
-          />
-        </div>
-        <Button type="submit" size="lg" className="h-14 px-8">
-          Search
-        </Button>
-      </div>
-    </form>
+    <div className="flex items-center gap-2">
+      <input
+        ref={inputRef}
+        value={query}
+        onChange={e=>setQuery(e.target.value)}
+        placeholder="Search a place (e.g., Nobu, Schwartz)"
+        className="w-full h-12 px-4 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+      <button
+        disabled={loading}
+        onClick={()=>{ /* rely on autocomplete selection; manual search optional */ }}
+        className="h-12 px-5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+      >
+        Search
+      </button>
+    </div>
   );
 }
