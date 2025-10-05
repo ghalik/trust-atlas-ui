@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { SearchBar } from "@/components/SearchBar";
+import { GooglePlacesAutocomplete } from "@/features/search/GooglePlacesAutocomplete";
 import { Header } from "@/components/Header";
 import { Badge } from "@/components/ui/badge";
 
@@ -11,6 +11,14 @@ const EXAMPLE_PLACES = [
 
 const Index = () => {
   const navigate = useNavigate();
+
+  const handlePlaceSelect = (placeId: string, _description: string) => {
+    navigate(`/p/${placeId}`);
+  };
+
+  const handleTextSearch = (query: string) => {
+    navigate(`/search?q=${encodeURIComponent(query)}`);
+  };
 
   const handleSearch = (query: string) => {
     navigate(`/p/${encodeURIComponent(query)}`);
@@ -36,7 +44,10 @@ const Index = () => {
             </p>
           </div>
 
-          <SearchBar onSearch={handleSearch} />
+          <GooglePlacesAutocomplete 
+            onPlaceSelect={handlePlaceSelect}
+            onTextSearch={handleTextSearch}
+          />
 
           <div className="flex flex-col items-center gap-3">
             <p className="text-sm text-muted-foreground">Try these popular places:</p>

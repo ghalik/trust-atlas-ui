@@ -10,6 +10,7 @@ export type Panel = {
   kind: string;
   title: string;
   url?: string;
+  deep?: string;
   deepLink?: string;
   icon?: string;
   preview?: string;

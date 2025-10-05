@@ -1,4 +1,5 @@
 import { Panel, Metrics } from "@/types";
+import { GooglePlace } from "./googlePlaces";
 
 // Brand boost mapping (weights for specific platforms)
 const BRAND_BOOST: Record<string, number> = {
@@ -12,39 +13,43 @@ const BRAND_BOOST: Record<string, number> = {
 };
 
 /**
- * Computes trust metrics based on panel coverage.
+ * Computes trust metrics based on Google Place data and panel coverage.
  * 
- * Formula:
- * Trust Score = base(40) + (coverage * 10) + brandBoost - redFlags
+ * Updated Formula with real Google data:
+ * Trust Score = baseScore(30) + googleRating(20) + reviewCount(10) + website(15) + socialPresence(20) + platformCoverage(5)
  * Clamped between 0-100
- * 
- * - coverage: number of distinct provider panels present
- * - brandBoost: sum of weights from BRAND_BOOST mapping
- * - redFlags: (placeholder, currently 0)
  */
-export function computeMetrics(panels: Panel[], placeKey: string): Metrics {
+export function computeMetrics(panels: Panel[], placeKey: string, place?: GooglePlace): Metrics {
   const coverage = panels.length;
   
-  // Calculate brand boost from present panels
-  const brandBoost = panels.reduce((sum, panel) => {
-    return sum + (BRAND_BOOST[panel.kind] || 0);
-  }, 0);
+  // Base score
+  let trustScore = 30;
   
-  // Red flags placeholder (currently none)
-  const redFlags = 0;
+  // Google rating contribution (0-20 points)
+  if (place?.rating) {
+    trustScore += (place.rating / 5) * 20;
+  }
   
-  // Calculate trust score
-  const baseScore = 40;
-  const coverageScore = coverage * 10;
-  const rawScore = baseScore + coverageScore + brandBoost - redFlags;
-  const trustScore = Math.max(0, Math.min(100, rawScore));
+  // Review count bonus (0-10 points)
+  if (place?.userRatingCount) {
+    trustScore += Math.min((place.userRatingCount / 100) * 10, 10);
+  }
   
-  // Calculate average stars (mock - would come from actual review data)
-  const avgStars = panels.length > 0 ? null : null;
+  // Official website bonus (15 points)
+  if (place?.websiteUri) {
+    trustScore += 15;
+  }
+  
+  // Platform coverage bonus (5 points per platform, max 25)
+  const platformBonus = Math.min(coverage * 5, 25);
+  trustScore += platformBonus;
+  
+  // Clamp between 0-100
+  trustScore = Math.max(0, Math.min(100, Math.round(trustScore)));
   
   return {
     place_key: placeKey,
-    avg_stars: avgStars,
+    avg_stars: place?.rating || null,
     total_sightings: coverage,
     trust_score: trustScore,
     last_recomputed_at: new Date().toISOString(),

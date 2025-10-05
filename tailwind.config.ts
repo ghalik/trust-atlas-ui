@@ -66,6 +66,7 @@ export default {
           instagram: "hsl(var(--instagram))",
           facebook: "hsl(var(--facebook))",
           youtube: "hsl(var(--youtube))",
+          tiktok: "hsl(var(--tiktok))",
           wikipedia: "hsl(var(--wikipedia))",
         },
       },
