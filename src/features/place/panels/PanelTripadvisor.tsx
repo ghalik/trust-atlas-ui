@@ -10,24 +10,37 @@ export function PanelTripadvisor({ place }: PanelTripadvisorProps) {
   const searchUrl = `https://www.tripadvisor.com/Search?q=${encodeURIComponent(place.displayName.text)}`;
   
   const preview = (
-    <div className="space-y-3">
-      <div className="flex items-center justify-center p-6 bg-gradient-to-br from-platform-tripadvisor/10 to-platform-tripadvisor/5 rounded-lg">
-        <MapPin className="w-16 h-16 text-platform-tripadvisor opacity-50" />
+    <div className="space-y-4 animate-fade-in">
+      {/* Simulated reviews */}
+      <div className="space-y-3">
+        {[
+          { rating: 5, title: "Amazing experience!", snippet: "Great food and atmosphere..." },
+          { rating: 4, title: "Highly recommend", snippet: "Service was excellent..." },
+          { rating: 5, title: "Will come back", snippet: "Best place in the area..." }
+        ].map((review, i) => (
+          <div key={i} className="p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-2 mb-1">
+              {[...Array(5)].map((_, j) => (
+                <Star
+                  key={j}
+                  className={`w-3 h-3 ${j < review.rating ? 'fill-platform-tripadvisor text-platform-tripadvisor' : 'text-muted-foreground/30'}`}
+                />
+              ))}
+            </div>
+            <p className="text-xs font-semibold mb-0.5">{review.title}</p>
+            <p className="text-xs text-muted-foreground line-clamp-1">{review.snippet}</p>
+          </div>
+        ))}
       </div>
       
-      <div className="space-y-2">
+      <div className="flex items-center justify-between pt-2 border-t">
         <div className="flex items-center gap-1">
           {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              className="w-4 h-4 fill-platform-tripadvisor text-platform-tripadvisor"
-            />
+            <Star key={i} className="w-4 h-4 fill-platform-tripadvisor text-platform-tripadvisor" />
           ))}
-          <span className="ml-2 font-medium">4.5</span>
+          <span className="ml-2 font-semibold">4.5</span>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Find reviews, ratings, and photos for {place.displayName.text} on TripAdvisor
-        </p>
+        <span className="text-xs text-muted-foreground">324 reviews</span>
       </div>
     </div>
   );

@@ -1,49 +1,77 @@
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-
 type ScoreGaugeProps = {
   score: number;
 };
 
 export function ScoreGauge({ score }: ScoreGaugeProps) {
-  const data = [
-    { value: score },
-    { value: 100 - score },
-  ];
-
-  // Color based on score
+  // Color based on score with Google-style palette
   const getColor = (score: number) => {
-    if (score >= 80) return "hsl(var(--tripadvisor))";
-    if (score >= 60) return "hsl(var(--google))";
-    if (score >= 40) return "hsl(var(--opentable))";
-    return "hsl(var(--yelp))";
+    if (score >= 80) return "hsl(142, 71%, 45%)"; // Google green
+    if (score >= 60) return "hsl(45, 100%, 51%)"; // Google yellow
+    if (score >= 40) return "hsl(32, 100%, 50%)"; // Google orange
+    return "hsl(4, 90%, 58%)"; // Google red
   };
 
+  const getLabel = (score: number) => {
+    if (score >= 80) return "Excellent";
+    if (score >= 60) return "Good";
+    if (score >= 40) return "Fair";
+    return "Limited";
+  };
+
+  const color = getColor(score);
+  const label = getLabel(score);
+  const circumference = 2 * Math.PI * 60;
+  const strokeDashoffset = circumference - (score / 100) * circumference;
+
   return (
-    <div className="relative w-full aspect-square max-w-[200px] mx-auto">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            startAngle={180}
-            endAngle={0}
-            innerRadius="70%"
-            outerRadius="90%"
-            dataKey="value"
-            stroke="none"
-          >
-            <Cell fill={getColor(score)} />
-            <Cell fill="hsl(var(--muted))" />
-          </Pie>
-        </PieChart>
-      </ResponsiveContainer>
-      <div className="absolute inset-0 flex flex-col items-center justify-center pb-4">
-        <div className="text-5xl font-bold bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent">
+    <div className="relative w-full aspect-square max-w-[180px] mx-auto group">
+      {/* Animated glow effect */}
+      <div 
+        className="absolute inset-0 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"
+        style={{ background: color }}
+      />
+      
+      {/* SVG Circle */}
+      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
+        {/* Background circle */}
+        <circle
+          cx="70"
+          cy="70"
+          r="60"
+          fill="none"
+          stroke="hsl(var(--muted))"
+          strokeWidth="8"
+          opacity="0.2"
+        />
+        
+        {/* Animated progress circle */}
+        <circle
+          cx="70"
+          cy="70"
+          r="60"
+          fill="none"
+          stroke={color}
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          className="transition-all duration-1000 ease-out"
+          style={{
+            filter: `drop-shadow(0 0 8px ${color})`,
+          }}
+        />
+      </svg>
+
+      {/* Center content */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div 
+          className="text-5xl font-bold mb-1 transition-all duration-500"
+          style={{ color }}
+        >
           {score}
         </div>
-        <div className="text-sm text-muted-foreground font-medium mt-1">
-          Trust Score
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          {label}
         </div>
       </div>
     </div>

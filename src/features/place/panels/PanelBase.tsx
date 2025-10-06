@@ -16,57 +16,51 @@ type PanelBaseProps = {
 
 export function PanelBase({ kind, title, icon, url, deepLink, preview, className }: PanelBaseProps) {
   return (
-    <Card className={cn("glass-card p-4 space-y-4 hover:scale-[1.01] transition-all duration-300", className)}>
-      {/* Header */}
-      <div className="flex items-start gap-3">
-        {icon && <div className="flex-shrink-0">{icon}</div>}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-lg">{title}</h3>
+    <Card className={cn("glass-card overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-2 border-transparent hover:border-primary/20", className)}>
+      <div className="p-4 space-y-4">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 group-hover:scale-110 transition-transform">
+              {icon}
+            </div>
+            <h3 className="font-semibold group-hover:text-primary transition-colors">{title}</h3>
+          </div>
           <div className={cn(
-            "inline-block px-2 py-0.5 rounded-full text-xs font-medium mt-1",
-            `bg-platform-${kind}/10 text-platform-${kind}`
+            "px-2 py-0.5 rounded-full text-xs font-medium group-hover:scale-105 transition-transform",
+            `bg-platform-${kind}/10 text-platform-${kind} border border-platform-${kind}/20`
           )}>
             {kind}
           </div>
         </div>
-      </div>
 
-      {/* Preview */}
-      <div className="min-h-[120px]">
-        {preview}
-      </div>
+        {/* Preview content */}
+        {preview && <div className="pt-2">{preview}</div>}
 
-      {/* Actions */}
-      {(url || deepLink) && (
-        <div className="flex gap-2">
+        {/* Actions */}
+        <div className="flex gap-2 pt-2">
           {url && (
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
-              className="flex-1"
-              asChild
+              className="flex-1 group-hover:scale-105 transition-transform"
+              onClick={() => window.open(url, "_blank")}
             >
-              <a href={url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Open
-              </a>
+              Open
             </Button>
           )}
           {deepLink && (
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="flex-1"
-              asChild
+              className="group-hover:scale-105 transition-transform"
+              onClick={() => window.open(deepLink, "_blank")}
             >
-              <a href={deepLink}>
-                <Smartphone className="w-4 h-4 mr-2" />
-                App
-              </a>
+              App
             </Button>
           )}
         </div>
-      )}
+      </div>
     </Card>
   );
 }
