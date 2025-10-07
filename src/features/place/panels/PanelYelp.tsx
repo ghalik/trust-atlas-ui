@@ -16,13 +16,7 @@ export function PanelYelp({ place }: PanelYelpProps) {
   
   const preview = (
     <div className="space-y-4 animate-fade-in">
-      {/* Real business info card */}
-      <a
-        href={searchUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-start gap-3 p-3 bg-gradient-to-br from-platform-yelp/10 to-platform-yelp/5 rounded-lg border border-platform-yelp/20 hover:scale-[1.02] hover:shadow-lg transition-all cursor-pointer"
-      >
+      <div className="flex items-start gap-3 p-3 bg-gradient-to-br from-platform-yelp/10 to-platform-yelp/5 rounded-lg border border-platform-yelp/20">
         <div className="w-16 h-16 bg-platform-yelp/20 rounded-lg flex items-center justify-center flex-shrink-0">
           <MapPin className="w-8 h-8 text-platform-yelp" />
         </div>
@@ -37,44 +31,30 @@ export function PanelYelp({ place }: PanelYelpProps) {
             ))}
             <span className="ml-1 text-sm font-semibold">{rating.toFixed(1)}</span>
           </div>
-          <p className="text-xs text-muted-foreground mb-2">{reviewCount.toLocaleString()} reviews</p>
+          <p className="text-xs text-muted-foreground mb-1">{reviewCount.toLocaleString()} Google reviews</p>
           {place.websiteUri && (
-            <div className="flex gap-2">
-              <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-600 rounded-full font-medium">
-                Verified Business
-              </span>
-            </div>
+            <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-600 rounded-full font-medium">
+              Verified
+            </span>
           )}
         </div>
-      </a>
+      </div>
 
-      {/* Sample top review using real place data */}
-      <a
-        href={searchUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block p-3 bg-muted/30 rounded-lg hover:bg-muted/50 hover:scale-[1.02] transition-all cursor-pointer"
-      >
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-6 h-6 bg-platform-yelp/30 rounded-full flex items-center justify-center text-xs font-bold">
-            R
-          </div>
-          <span className="text-xs font-medium">Recent Reviewer</span>
-          <span className="text-xs text-muted-foreground ml-auto">2 days ago</span>
-        </div>
-        <div className="flex items-center gap-1 mb-1">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-3 h-3 fill-platform-yelp text-platform-yelp" />
-          ))}
-        </div>
-        <p className="text-xs text-muted-foreground line-clamp-2">
-          "{place.displayName.text} is a fantastic spot! The quality and atmosphere are top-notch. Highly recommend visiting..."
+      <div className="text-center p-6 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/20">
+        <MapPin className="w-12 h-12 text-muted-foreground/40 mx-auto mb-2" />
+        <p className="text-sm font-medium mb-1">Search Yelp</p>
+        <p className="text-xs text-muted-foreground mb-3">
+          Yelp reviews require their API. Click below to search for this place on Yelp.
         </p>
-      </a>
-
-      <p className="text-xs text-center text-muted-foreground">
-        Click to search for real reviews on Yelp
-      </p>
+        <a
+          href={searchUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-4 py-2 bg-platform-yelp text-white rounded-lg hover:scale-105 transition-transform text-sm font-medium"
+        >
+          View on Yelp
+        </a>
+      </div>
     </div>
   );
 

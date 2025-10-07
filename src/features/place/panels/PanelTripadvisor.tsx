@@ -15,7 +15,6 @@ export function PanelTripadvisor({ place }: PanelTripadvisorProps) {
   
   const preview = (
     <div className="space-y-4 animate-fade-in">
-      {/* Real rating display */}
       <div className="flex items-center justify-between p-4 bg-gradient-to-br from-platform-tripadvisor/10 to-platform-tripadvisor/5 rounded-lg border border-platform-tripadvisor/20">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -29,44 +28,29 @@ export function PanelTripadvisor({ place }: PanelTripadvisorProps) {
           <p className="text-sm font-semibold">
             {rating.toFixed(1)} out of 5.0
           </p>
+          <p className="text-xs text-muted-foreground mt-1">Based on Google rating</p>
         </div>
         <div className="text-right">
           <p className="text-2xl font-bold text-platform-tripadvisor">{reviewCount.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">reviews</p>
+          <p className="text-xs text-muted-foreground">Google reviews</p>
         </div>
       </div>
 
-      {/* Sample review cards with real place name */}
-      <div className="space-y-2">
-        {[
-          { rating: 5, title: "Amazing experience!", snippet: `${place.displayName.text} exceeded all expectations...` },
-          { rating: 4, title: "Highly recommend", snippet: "Great atmosphere and service..." },
-          { rating: 5, title: "Will visit again", snippet: "One of the best in the area..." }
-        ].map((review, i) => (
-          <a
-            key={i}
-            href={searchUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block p-3 bg-muted/30 rounded-lg hover:bg-muted/50 hover:scale-[1.02] transition-all cursor-pointer"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              {[...Array(5)].map((_, j) => (
-                <Star
-                  key={j}
-                  className={`w-3 h-3 ${j < review.rating ? 'fill-platform-tripadvisor text-platform-tripadvisor' : 'text-muted-foreground/30'}`}
-                />
-              ))}
-            </div>
-            <p className="text-xs font-semibold mb-0.5">{review.title}</p>
-            <p className="text-xs text-muted-foreground line-clamp-1">{review.snippet}</p>
-          </a>
-        ))}
+      <div className="text-center p-6 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/20">
+        <MapPin className="w-12 h-12 text-muted-foreground/40 mx-auto mb-2" />
+        <p className="text-sm font-medium mb-1">Search TripAdvisor</p>
+        <p className="text-xs text-muted-foreground mb-3">
+          TripAdvisor reviews require their API. Click below to search for this place on TripAdvisor.
+        </p>
+        <a
+          href={searchUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-4 py-2 bg-platform-tripadvisor text-white rounded-lg hover:scale-105 transition-transform text-sm font-medium"
+        >
+          View on TripAdvisor
+        </a>
       </div>
-      
-      <p className="text-xs text-center text-muted-foreground">
-        Click reviews to search on TripAdvisor
-      </p>
     </div>
   );
 

@@ -18,6 +18,15 @@ export type GooglePlace = {
     widthPx: number;
     heightPx: number;
   }>;
+  reviews?: Array<{
+    author_name: string;
+    author_url?: string;
+    profile_photo_url?: string;
+    rating: number;
+    relative_time_description: string;
+    text: string;
+    time: number;
+  }>;
 };
 
 /**
@@ -43,7 +52,7 @@ export async function getPlaceDetails(placeId: string): Promise<GooglePlace | nu
     service.getDetails(
       {
         placeId,
-        fields: ['place_id', 'name', 'formatted_address', 'geometry', 'rating', 'user_ratings_total', 'website', 'formatted_phone_number', 'opening_hours', 'photos']
+        fields: ['place_id', 'name', 'formatted_address', 'geometry', 'rating', 'user_ratings_total', 'website', 'formatted_phone_number', 'opening_hours', 'photos', 'reviews']
       },
       (place, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && place) {
@@ -66,6 +75,15 @@ export async function getPlaceDetails(placeId: string): Promise<GooglePlace | nu
               name: photo.getUrl(),
               widthPx: photo.width || 400,
               heightPx: photo.height || 300,
+            })),
+            reviews: place.reviews?.map(review => ({
+              author_name: review.author_name,
+              author_url: review.author_url,
+              profile_photo_url: review.profile_photo_url,
+              rating: review.rating,
+              relative_time_description: review.relative_time_description,
+              text: review.text,
+              time: review.time,
             }))
           };
           resolve(googlePlace);
