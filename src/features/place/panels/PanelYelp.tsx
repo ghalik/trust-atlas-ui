@@ -1,16 +1,27 @@
 import { MapPin, Star } from "lucide-react";
 import { PanelBase } from "./PanelBase";
 import { GooglePlace } from "@/services/googlePlaces";
+import { useEffect, useState } from "react";
+import { searchYelp, PlatformContent } from "@/services/platformSearch";
 
 type PanelYelpProps = {
   place: GooglePlace;
 };
 
 export function PanelYelp({ place }: PanelYelpProps) {
-  const city = place.formattedAddress.split(",")[1]?.trim() || "";
-  const searchUrl = `https://www.yelp.com/search?find_desc=${encodeURIComponent(place.displayName.text)}&find_loc=${encodeURIComponent(city)}`;
+  const [content, setContent] = useState<PlatformContent | null>(null);
   
-  // Use real data from Google Places
+  useEffect(() => {
+    searchYelp(place).then(setContent);
+  }, [place]);
+  
+  if (content && !content.exists) {
+    return null;
+  }
+  
+  const city = place.formattedAddress.split(",")[1]?.trim() || "";
+  const searchUrl = content?.pageUrl || `https://www.yelp.com/search?find_desc=${encodeURIComponent(place.displayName.text)}&find_loc=${encodeURIComponent(city)}`;
+  
   const rating = place.rating || 4.0;
   const reviewCount = place.userRatingCount || 256;
   
