@@ -1,29 +1,17 @@
 import { MapPin, Star } from "lucide-react";
 import { PanelBase } from "./PanelBase";
 import { GooglePlace } from "@/services/googlePlaces";
-import { useEffect, useState } from "react";
-import { searchYelp, PlatformContent } from "@/services/platformSearch";
 
 type PanelYelpProps = {
   place: GooglePlace;
 };
 
 export function PanelYelp({ place }: PanelYelpProps) {
-  const [content, setContent] = useState<PlatformContent | null>(null);
-  
-  useEffect(() => {
-    searchYelp(place).then(setContent);
-  }, [place]);
-  
-  if (content && !content.exists) {
-    return null;
-  }
-  
   const city = place.formattedAddress.split(",")[1]?.trim() || "";
-  const searchUrl = content?.pageUrl || `https://www.yelp.com/search?find_desc=${encodeURIComponent(place.displayName.text)}&find_loc=${encodeURIComponent(city)}`;
+  const searchUrl = `https://www.yelp.com/search?find_desc=${encodeURIComponent(place.displayName.text)}&find_loc=${encodeURIComponent(city)}`;
   
-  const rating = place.rating || 4.0;
-  const reviewCount = place.userRatingCount || 256;
+  const rating = place.rating || 0;
+  const reviewCount = place.userRatingCount || 0;
   
   const preview = (
     <div className="space-y-4 animate-fade-in">
@@ -43,28 +31,13 @@ export function PanelYelp({ place }: PanelYelpProps) {
             <span className="ml-1 text-sm font-semibold">{rating.toFixed(1)}</span>
           </div>
           <p className="text-xs text-muted-foreground mb-1">{reviewCount.toLocaleString()} Google reviews</p>
-          {place.websiteUri && (
-            <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-600 rounded-full font-medium">
-              Verified
-            </span>
-          )}
         </div>
       </div>
 
-      <div className="text-center p-6 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/20">
-        <MapPin className="w-12 h-12 text-muted-foreground/40 mx-auto mb-2" />
-        <p className="text-sm font-medium mb-1">Search Yelp</p>
-        <p className="text-xs text-muted-foreground mb-3">
-          Yelp reviews require their API. Click below to search for this place on Yelp.
+      <div className="text-center p-4 bg-muted/30 rounded-lg">
+        <p className="text-xs text-muted-foreground">
+          Click Open to see Yelp reviews and ratings
         </p>
-        <a
-          href={searchUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block px-4 py-2 bg-platform-yelp text-white rounded-lg hover:scale-105 transition-transform text-sm font-medium"
-        >
-          View on Yelp
-        </a>
       </div>
     </div>
   );
