@@ -1,29 +1,47 @@
-import { Video, Play } from "lucide-react";
+import { Video, Play, Heart } from "lucide-react";
 import { PanelBase } from "./PanelBase";
 import { GooglePlace } from "@/services/googlePlaces";
+import { useEffect, useState } from "react";
+import { fetchTikTokContent, PlatformContent } from "@/services/platformContent";
 
 type PanelTiktokProps = {
   place: GooglePlace;
 };
 
 export function PanelTiktok({ place }: PanelTiktokProps) {
+  const [content, setContent] = useState<PlatformContent | null>(null);
   const hashtag = place.displayName.text.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
   const url = `https://www.tiktok.com/tag/${hashtag}`;
   const deepLink = `tiktok://tag?name=${hashtag}`;
   
+  useEffect(() => {
+    fetchTikTokContent(place).then(setContent);
+  }, [place]);
+
+  const videos = content?.videos || [];
+  
   const preview = (
     <div className="space-y-3 animate-fade-in">
       <div className="grid grid-cols-3 gap-2">
-        {place.photos?.slice(0, 6).map((photo, i) => (
-          <div
+        {videos.slice(0, 6).map((video, i) => (
+          <a
             key={i}
+            href={video.url}
+            target="_blank"
+            rel="noopener noreferrer"
             className="aspect-[9/16] rounded-lg relative overflow-hidden group cursor-pointer hover:scale-105 hover:shadow-xl transition-all duration-300 border border-platform-tiktok/20"
           >
-            <img
-              src={photo.name}
-              alt={`${place.displayName.text} preview ${i + 1}`}
-              className="w-full h-full object-cover"
-            />
+            {video.thumbnail ? (
+              <img
+                src={video.thumbnail}
+                alt={video.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-cyan-500/20 via-pink-500/20 to-purple-500/20 flex items-center justify-center">
+                <Video className="w-8 h-8 text-white" />
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -32,18 +50,26 @@ export function PanelTiktok({ place }: PanelTiktokProps) {
               </div>
             </div>
 
+            <div className="absolute bottom-2 left-2 right-2">
+              <p className="text-white text-xs font-medium line-clamp-2 drop-shadow-lg">
+                {video.title}
+              </p>
+            </div>
+
             <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded-full p-1">
               <Video className="w-3 h-3 text-white" />
             </div>
-          </div>
+          </a>
         ))}
       </div>
       <div className="flex items-center justify-center gap-2 text-sm bg-gradient-to-r from-cyan-500/10 via-pink-500/10 to-purple-500/10 p-2 rounded-lg border border-platform-tiktok/20">
         <span className="font-semibold">#{hashtag}</span>
+        <span className="text-muted-foreground">•</span>
+        <span className="text-muted-foreground">{videos.length} videos</span>
       </div>
       <div className="text-center p-2 bg-muted/30 rounded-lg">
         <p className="text-xs text-muted-foreground">
-          Click Open to see TikTok videos
+          Click videos to watch on TikTok
         </p>
       </div>
     </div>
