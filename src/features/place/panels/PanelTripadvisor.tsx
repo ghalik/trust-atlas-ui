@@ -3,6 +3,7 @@ import { PanelBase } from "./PanelBase";
 import { GooglePlace } from "@/services/googlePlaces";
 import { useEffect, useState } from "react";
 import { fetchTripAdvisorContent, PlatformContent } from "@/services/platformContent";
+import { formatCount, formatRating } from "@/lib/format";
 
 type PanelTripadvisorProps = {
   place: GooglePlace;
@@ -50,12 +51,12 @@ export function PanelTripadvisor({ place }: PanelTripadvisorProps) {
             ))}
           </div>
           <p className="text-sm font-semibold">
-            {rating.toFixed(1)} out of 5.0
+            {formatRating(rating)} out of 5.0
           </p>
           <p className="text-xs text-muted-foreground mt-1">Based on reviews</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-platform-tripadvisor">{reviewCount.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-platform-tripadvisor">{formatCount(reviewCount)}</p>
           <p className="text-xs text-muted-foreground">reviews</p>
         </div>
       </div>

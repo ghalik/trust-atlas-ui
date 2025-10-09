@@ -3,6 +3,7 @@ import { PanelBase } from "./PanelBase";
 import { GooglePlace } from "@/services/googlePlaces";
 import { useEffect, useState } from "react";
 import { fetchTikTokContent, PlatformContent } from "@/services/platformContent";
+import { formatCount } from "@/lib/format";
 
 type PanelTiktokProps = {
   place: GooglePlace;
@@ -65,7 +66,7 @@ export function PanelTiktok({ place }: PanelTiktokProps) {
       <div className="flex items-center justify-center gap-2 text-sm bg-gradient-to-r from-cyan-500/10 via-pink-500/10 to-purple-500/10 p-2 rounded-lg border border-platform-tiktok/20">
         <span className="font-semibold">#{hashtag}</span>
         <span className="text-muted-foreground">•</span>
-        <span className="text-muted-foreground">{videos.length} videos</span>
+        <span className="text-muted-foreground">{formatCount(videos.length)} videos</span>
       </div>
       <div className="text-center p-2 bg-muted/30 rounded-lg">
         <p className="text-xs text-muted-foreground">

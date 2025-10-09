@@ -3,6 +3,7 @@ import { PanelBase } from "./PanelBase";
 import { GooglePlace } from "@/services/googlePlaces";
 import { useEffect, useState } from "react";
 import { fetchYoutubeContent, PlatformContent } from "@/services/platformContent";
+import { formatCount } from "@/lib/format";
 
 type PanelYoutubeProps = {
   place: GooglePlace;
@@ -56,7 +57,7 @@ export function PanelYoutube({ place }: PanelYoutubeProps) {
       </div>
       <div className="text-center p-3 bg-muted/30 rounded-lg">
         <p className="text-xs text-muted-foreground">
-          {videos.length} videos found - Click to watch on YouTube
+          {formatCount(videos.length)} videos found - Click to watch on YouTube
         </p>
       </div>
     </div>
