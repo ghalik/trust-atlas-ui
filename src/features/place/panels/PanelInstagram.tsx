@@ -1,6 +1,7 @@
 import { Instagram, Star } from "lucide-react";
 import { PanelBase } from "./PanelBase";
 import { GooglePlace } from "@/services/googlePlaces";
+import SmartThumb from "@/components/SmartThumb";
 
 type PanelInstagramProps = {
   place: GooglePlace;
@@ -24,10 +25,11 @@ export function PanelInstagram({ place }: PanelInstagramProps) {
                 rel="noopener noreferrer"
                 className="aspect-square rounded-lg relative overflow-hidden group cursor-pointer hover:scale-105 transition-all duration-300 shadow-md hover:shadow-xl"
               >
-                <img
-                  src={photo.name}
-                  alt={`${place.displayName.text} - Photo ${i + 1}`}
-                  className="w-full h-full object-cover"
+                <SmartThumb 
+                  url={url}
+                  alt={`${place.displayName.text} on Instagram`}
+                  size={150}
+                  className="w-full h-full"
                 />
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

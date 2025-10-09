@@ -4,6 +4,7 @@ import { GooglePlace } from "@/services/googlePlaces";
 import { useEffect, useState } from "react";
 import { fetchYoutubeContent, PlatformContent } from "@/services/platformContent";
 import { formatCount } from "@/lib/format";
+import SmartThumb from "@/components/SmartThumb";
 
 type PanelYoutubeProps = {
   place: GooglePlace;
@@ -30,17 +31,12 @@ export function PanelYoutube({ place }: PanelYoutubeProps) {
             rel="noopener noreferrer"
             className="relative aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-platform-youtube/20 to-platform-youtube/5 border border-platform-youtube/20 group cursor-pointer"
           >
-            {video.thumbnail ? (
-              <img
-                src={video.thumbnail}
-                alt={video.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-muted flex items-center justify-center">
-                <Youtube className="w-8 h-8 text-muted-foreground" />
-              </div>
-            )}
+            <SmartThumb 
+              url={video.url} 
+              alt={video.title}
+              size={200}
+              className="w-full h-full"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-2">
               <p className="text-white text-xs font-medium line-clamp-2 drop-shadow-lg">

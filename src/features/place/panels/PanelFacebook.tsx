@@ -1,6 +1,7 @@
 import { Facebook } from "lucide-react";
 import { PanelBase } from "./PanelBase";
 import { GooglePlace } from "@/services/googlePlaces";
+import SmartThumb from "@/components/SmartThumb";
 
 type PanelFacebookProps = {
   place: GooglePlace;
@@ -12,7 +13,11 @@ export function PanelFacebook({ place }: PanelFacebookProps) {
   const preview = (
     <div className="space-y-3">
       <div className="flex items-center justify-center p-8 bg-gradient-to-br from-platform-facebook/10 to-platform-facebook/5 rounded-lg">
-        <Facebook className="w-20 h-20 text-platform-facebook opacity-50" />
+        <SmartThumb 
+          url={searchUrl} 
+          alt={`${place.displayName.text} on Facebook`} 
+          size={120}
+        />
       </div>
       <p className="text-sm text-muted-foreground">
         Find the official Facebook page and community updates for {place.displayName.text}

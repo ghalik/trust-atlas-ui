@@ -4,6 +4,7 @@ import { GooglePlace } from "@/services/googlePlaces";
 import { useEffect, useState } from "react";
 import { fetchTikTokContent, PlatformContent } from "@/services/platformContent";
 import { formatCount } from "@/lib/format";
+import SmartThumb from "@/components/SmartThumb";
 
 type PanelTiktokProps = {
   place: GooglePlace;
@@ -32,17 +33,12 @@ export function PanelTiktok({ place }: PanelTiktokProps) {
             rel="noopener noreferrer"
             className="aspect-[9/16] rounded-lg relative overflow-hidden group cursor-pointer hover:scale-105 hover:shadow-xl transition-all duration-300 border border-platform-tiktok/20"
           >
-            {video.thumbnail ? (
-              <img
-                src={video.thumbnail}
-                alt={video.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-cyan-500/20 via-pink-500/20 to-purple-500/20 flex items-center justify-center">
-                <Video className="w-8 h-8 text-white" />
-              </div>
-            )}
+            <SmartThumb 
+              url={video.url} 
+              alt={video.title}
+              size={120}
+              className="w-full h-full"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
