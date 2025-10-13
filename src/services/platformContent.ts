@@ -18,21 +18,81 @@ export type PlatformContent = {
 };
 
 export async function fetchYoutubeContent(place: GooglePlace): Promise<PlatformContent> {
-  // Return empty - SmartThumb will show "Nothing to show" since we can't fetch real YouTube data without API
-  return { videos: [] };
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-youtube`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+      },
+      body: JSON.stringify({ placeName: place.displayName.text })
+    });
+    
+    if (!response.ok) return { videos: [] };
+    return await response.json();
+  } catch (error) {
+    console.error('YouTube fetch failed:', error);
+    return { videos: [] };
+  }
 }
 
 export async function fetchTikTokContent(place: GooglePlace): Promise<PlatformContent> {
-  // Return empty - SmartThumb will show "Nothing to show" since we can't fetch real TikTok data without API
-  return { videos: [] };
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-tiktok`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+      },
+      body: JSON.stringify({ placeName: place.displayName.text })
+    });
+    
+    if (!response.ok) return { videos: [] };
+    return await response.json();
+  } catch (error) {
+    console.error('TikTok fetch failed:', error);
+    return { videos: [] };
+  }
 }
 
 export async function fetchTripAdvisorContent(place: GooglePlace): Promise<PlatformContent> {
-  // Return empty - can't fetch real TripAdvisor data without scraping/API
-  return {};
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-tripadvisor`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+      },
+      body: JSON.stringify({ placeName: place.displayName.text })
+    });
+    
+    if (!response.ok) return {};
+    return await response.json();
+  } catch (error) {
+    console.error('TripAdvisor fetch failed:', error);
+    return {};
+  }
 }
 
 export async function fetchYelpContent(place: GooglePlace): Promise<PlatformContent> {
-  // Return empty - can't fetch real Yelp data without scraping/API
-  return {};
+  try {
+    const city = place.formattedAddress.split(",")[1]?.trim() || "";
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-yelp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+      },
+      body: JSON.stringify({ 
+        placeName: place.displayName.text,
+        city 
+      })
+    });
+    
+    if (!response.ok) return {};
+    return await response.json();
+  } catch (error) {
+    console.error('Yelp fetch failed:', error);
+    return {};
+  }
 }
