@@ -9,13 +9,27 @@ Deno.serve(async (req) => {
     const { placeName, city } = await req.json();
     console.log('Fetching Yelp data for:', placeName, 'in', city);
     
+    // Normalize place name for fuzzy matching
+    const normalizedName = placeName.toLowerCase().trim();
+    
     const searchUrl = `https://www.yelp.com/search?find_desc=${encodeURIComponent(placeName)}&find_loc=${encodeURIComponent(city || '')}`;
     
     const response = await fetch(searchUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Accept-Language': 'en-US,en;q=0.9',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Sec-Ch-Ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"macOS"',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'Upgrade-Insecure-Requests': '1'
       }
     });
     
@@ -32,7 +46,21 @@ Deno.serve(async (req) => {
     let reviewCount = null;
     let photos: string[] = [];
     
-    // Method 1: Try Apollo state (embedded in HTML comment)
+    // Helper function for fuzzy name matching
+    const fuzzyMatch = (str1: string, str2: string): boolean => {
+      const s1 = str1.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const s2 = str2.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (s1.includes(s2) || s2.includes(s1)) return true;
+      const bigrams1 = new Set<string>();
+      const bigrams2 = new Set<string>();
+      for (let i = 0; i < s1.length - 1; i++) bigrams1.add(s1.slice(i, i + 2));
+      for (let i = 0; i < s2.length - 1; i++) bigrams2.add(s2.slice(i, i + 2));
+      const intersection = [...bigrams1].filter(x => bigrams2.has(x)).length;
+      const similarity = (2 * intersection) / (bigrams1.size + bigrams2.size);
+      return similarity > 0.5;
+    };
+    
+    // Method 1: Try Apollo state (embedded in HTML comment) with fuzzy matching
     const apolloMatch = html.match(/<!--\s*({.*?})\s*-->/s);
     if (apolloMatch) {
       try {
@@ -41,14 +69,17 @@ Deno.serve(async (req) => {
         for (const key in apolloState) {
           if (key.startsWith('Business:')) {
             const biz = apolloState[key];
-            rating = biz.rating || rating;
-            reviewCount = biz.reviewCount || reviewCount;
-            if (biz.photos?.length) {
-              photos = biz.photos.slice(0, 4).map((p: any) => 
-                p.src || p.photoUrl || p.url
-              ).filter(Boolean);
+            const bizName = biz.name || '';
+            if (fuzzyMatch(bizName, normalizedName)) {
+              rating = biz.rating || rating;
+              reviewCount = biz.reviewCount || reviewCount;
+              if (biz.photos?.length) {
+                photos = biz.photos.slice(0, 4).map((p: any) => 
+                  p.src || p.photoUrl || p.url
+                ).filter(Boolean);
+              }
+              if (rating && reviewCount) break;
             }
-            if (rating && reviewCount) break;
           }
         }
       } catch (e) {

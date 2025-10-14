@@ -15,37 +15,38 @@ const BRAND_BOOST: Record<string, number> = {
 /**
  * Computes trust metrics based on Google Place data and panel coverage.
  * 
- * Updated Formula with real Google data:
- * Trust Score = baseScore(30) + googleRating(20) + reviewCount(10) + website(15) + socialPresence(20) + platformCoverage(5)
- * Clamped between 0-100
+ * Trust Score Formula:
+ * - Base Score: 30 points (starting credibility)
+ * - Google Rating: 0-20 points (rating/5 × 20)
+ * - Review Volume: 0-10 points (min((reviews/100) × 10, 10))
+ * - Official Website: 0-15 points (verified website = +15)
+ * - Platform Coverage: 0-25 points (platforms × 5, max 25)
+ * Total: 0-100 points
  */
 export function computeMetrics(panels: Panel[], placeKey: string, place?: GooglePlace): Metrics {
   const coverage = panels.length;
   
-  // Base score
-  let trustScore = 30;
+  // Base score: 30 points
+  const baseScore = 30;
   
   // Google rating contribution (0-20 points)
-  if (place?.rating) {
-    trustScore += (place.rating / 5) * 20;
-  }
+  const googleRatingContribution = place?.rating 
+    ? Math.round((place.rating / 5) * 20) 
+    : 0;
   
   // Review count bonus (0-10 points)
-  if (place?.userRatingCount) {
-    trustScore += Math.min((place.userRatingCount / 100) * 10, 10);
-  }
+  const reviewCountBonus = place?.userRatingCount 
+    ? Math.round(Math.min((place.userRatingCount / 100) * 10, 10))
+    : 0;
   
   // Official website bonus (15 points)
-  if (place?.websiteUri) {
-    trustScore += 15;
-  }
+  const websiteBonus = place?.websiteUri ? 15 : 0;
   
   // Platform coverage bonus (5 points per platform, max 25)
   const platformBonus = Math.min(coverage * 5, 25);
-  trustScore += platformBonus;
   
-  // Clamp between 0-100
-  trustScore = Math.max(0, Math.min(100, Math.round(trustScore)));
+  // Calculate total (already clamped by design: max is 30+20+10+15+25 = 100)
+  const trustScore = baseScore + googleRatingContribution + reviewCountBonus + websiteBonus + platformBonus;
   
   return {
     place_key: placeKey,
