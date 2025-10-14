@@ -7,22 +7,31 @@ Deno.serve(async (req) => {
 
   try {
     const { placeName } = await req.json();
+    console.log('Fetching YouTube videos for:', placeName);
     
-    // Use YouTube's RSS feed (no API key required) + scrape search results
     const searchQuery = encodeURIComponent(placeName);
     const searchUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
     
     const response = await fetch(searchUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9'
       }
     });
+    
+    if (!response.ok) {
+      console.error('YouTube response not OK:', response.status);
+      return new Response(JSON.stringify({ videos: [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
     
     const html = await response.text();
     
     // Extract video data from ytInitialData
-    const dataMatch = html.match(/var ytInitialData = ({.*?});/);
+    const dataMatch = html.match(/var ytInitialData = ({.+?});/s);
     if (!dataMatch) {
+      console.error('Could not find ytInitialData in YouTube response');
       return new Response(JSON.stringify({ videos: [] }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -45,6 +54,7 @@ Deno.serve(async (req) => {
       })
       .filter((v: any) => v.title);
 
+    console.log(`Found ${videos.length} YouTube videos`);
     return new Response(JSON.stringify({ videos }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
