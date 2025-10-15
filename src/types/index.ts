@@ -23,6 +23,12 @@ export type Metrics = {
   total_sightings: number;
   trust_score: number;
   last_recomputed_at: string | null;
+  // Real calculated breakdown components
+  base_score: number;
+  google_rating_contribution: number;
+  review_count_bonus: number;
+  website_bonus: number;
+  platform_bonus: number;
 };
 
 export type FilterGroup = {

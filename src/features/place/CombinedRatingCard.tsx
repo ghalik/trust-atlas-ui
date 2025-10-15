@@ -14,12 +14,12 @@ type CombinedRatingCardProps = {
 export function CombinedRatingCard({ place, metrics }: CombinedRatingCardProps) {
   const [expanded, setExpanded] = useState(true); // Default to expanded to show calculation
 
-  // Real calculations with actual numbers
-  const baseScore = 30;
-  const googleRatingContribution = place.rating ? Math.round((place.rating / 5) * 20) : 0;
-  const reviewCountBonus = place.userRatingCount ? Math.round(Math.min((place.userRatingCount / 100) * 10, 10)) : 0;
-  const websiteBonus = place.websiteUri ? 15 : 0;
-  const platformBonus = Math.min(metrics.total_sightings * 5, 25);
+  // Use REAL calculated values from metrics (not recalculating)
+  const baseScore = metrics.base_score;
+  const googleRatingContribution = metrics.google_rating_contribution;
+  const reviewCountBonus = metrics.review_count_bonus;
+  const websiteBonus = metrics.website_bonus;
+  const platformBonus = metrics.platform_bonus;
 
   const breakdown = [
     {
@@ -77,7 +77,8 @@ export function CombinedRatingCard({ place, metrics }: CombinedRatingCardProps) 
     },
   ];
 
-  const totalCalculated = baseScore + googleRatingContribution + reviewCountBonus + websiteBonus + platformBonus;
+  // Use the actual computed trust score from metrics
+  const totalCalculated = metrics.trust_score;
 
   return (
     <Card className="glass-card p-6 border-2 border-primary/20">
@@ -89,7 +90,7 @@ export function CombinedRatingCard({ place, metrics }: CombinedRatingCardProps) 
               <span className="text-2xl text-primary animate-pulse">{metrics.trust_score}</span>
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Real-time calculation based on verified data
+              Based on real data: {place.rating?.toFixed(1) || 'N/A'} ★ rating, {place.userRatingCount?.toLocaleString() || 0} reviews, {metrics.total_sightings} platforms
             </p>
           </div>
           <Button
@@ -147,11 +148,10 @@ export function CombinedRatingCard({ place, metrics }: CombinedRatingCardProps) 
                 </span>
               </div>
               <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
-                <strong>Formula:</strong> Base (30) + Google Rating (0-20) + Review Volume (0-10) + 
-                Website (0-15) + Platform Coverage (0-25) = <strong className="text-primary">{totalCalculated} points</strong>
+                <strong>Actual Calculation:</strong> {baseScore} + {googleRatingContribution} + {reviewCountBonus} + {websiteBonus} + {platformBonus} = <strong className="text-primary">{totalCalculated} points</strong>
                 <br />
-                <span className="text-xs mt-2 block">
-                  Last updated: {new Date(metrics.last_recomputed_at).toLocaleString()}
+                <span className="text-xs mt-2 block opacity-70">
+                  Computed at: {metrics.last_recomputed_at ? new Date(metrics.last_recomputed_at).toLocaleString() : 'N/A'}
                 </span>
               </p>
             </div>

@@ -54,6 +54,12 @@ export function computeMetrics(panels: Panel[], placeKey: string, place?: Google
     total_sightings: coverage,
     trust_score: trustScore,
     last_recomputed_at: new Date().toISOString(),
+    // Store real calculated breakdown
+    base_score: baseScore,
+    google_rating_contribution: googleRatingContribution,
+    review_count_bonus: reviewCountBonus,
+    website_bonus: websiteBonus,
+    platform_bonus: platformBonus,
   };
 }
 
