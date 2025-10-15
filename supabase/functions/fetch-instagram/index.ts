@@ -12,6 +12,27 @@ Deno.serve(async (req) => {
     const hashtag = placeName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
     const instagramUrl = `https://www.instagram.com/explore/tags/${hashtag}/`;
 
+    // Try Microlink API for OpenGraph data
+    try {
+      const microlinkUrl = `https://api.microlink.io?url=${encodeURIComponent(instagramUrl)}&meta=true&screenshot=true`;
+      const microlinkResponse = await fetch(microlinkUrl);
+      if (microlinkResponse.ok) {
+        const microlinkData = await microlinkResponse.json();
+        if (microlinkData?.data?.image?.url) {
+          console.log('Microlink Instagram image:', microlinkData.data.image.url);
+          return new Response(JSON.stringify({ 
+            photos: [microlinkData.data.image.url],
+            rating: null,
+            reviewCount: null 
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+    } catch (e) {
+      console.log('Microlink Instagram fallback failed:', e);
+    }
+
     const response = await fetch(instagramUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',

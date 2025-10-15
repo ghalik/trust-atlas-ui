@@ -11,6 +11,27 @@ Deno.serve(async (req) => {
     
     const searchUrl = `https://www.facebook.com/search/pages/?q=${encodeURIComponent(placeName)}`;
 
+    // Try Microlink API for OpenGraph extraction
+    try {
+      const microlinkUrl = `https://api.microlink.io?url=${encodeURIComponent(searchUrl)}&meta=true`;
+      const microlinkResponse = await fetch(microlinkUrl);
+      if (microlinkResponse.ok) {
+        const microlinkData = await microlinkResponse.json();
+        if (microlinkData?.data?.image?.url) {
+          console.log('Microlink Facebook image:', microlinkData.data.image.url);
+          return new Response(JSON.stringify({ 
+            photos: [microlinkData.data.image.url],
+            rating: null,
+            reviewCount: null 
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+    } catch (e) {
+      console.log('Microlink Facebook fallback failed:', e);
+    }
+
     const response = await fetch(searchUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',

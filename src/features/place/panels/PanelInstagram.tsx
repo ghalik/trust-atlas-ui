@@ -30,6 +30,9 @@ export function PanelInstagram({ place }: PanelInstagramProps) {
               src={photo}
               alt={`${place.displayName.text} on Instagram ${idx + 1}`}
               className="w-full h-full object-cover transition-transform group-hover:scale-110"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </div>
         ))}
@@ -47,9 +50,9 @@ export function PanelInstagram({ place }: PanelInstagramProps) {
     <div className="space-y-3 animate-fade-in">
       <div className="text-center p-8 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/20">
         <Instagram className="w-12 h-12 text-muted-foreground/40 mx-auto mb-2" />
-        <p className="text-sm font-medium mb-1">No Instagram Photos Found</p>
+        <p className="text-sm font-medium mb-1">No data available</p>
         <p className="text-xs text-muted-foreground mb-3">
-          Search for #{hashtag} on Instagram to find photos and posts.
+          No Instagram photos found for #{hashtag}.
         </p>
         <a
           href={url}
