@@ -96,3 +96,41 @@ export async function fetchYelpContent(place: GooglePlace): Promise<PlatformCont
     return {};
   }
 }
+
+export async function fetchInstagramContent(place: GooglePlace): Promise<PlatformContent> {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-instagram`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+      },
+      body: JSON.stringify({ placeName: place.displayName.text })
+    });
+    
+    if (!response.ok) return {};
+    return await response.json();
+  } catch (error) {
+    console.error('Instagram fetch failed:', error);
+    return {};
+  }
+}
+
+export async function fetchFacebookContent(place: GooglePlace): Promise<PlatformContent> {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-facebook`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+      },
+      body: JSON.stringify({ placeName: place.displayName.text })
+    });
+    
+    if (!response.ok) return {};
+    return await response.json();
+  } catch (error) {
+    console.error('Facebook fetch failed:', error);
+    return {};
+  }
+}
