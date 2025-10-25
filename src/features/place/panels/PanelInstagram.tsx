@@ -1,9 +1,8 @@
-import { Instagram, Heart, MessageCircle } from "lucide-react";
+import { Instagram } from "lucide-react";
 import { PanelBase } from "./PanelBase";
 import { GooglePlace } from "@/services/googlePlaces";
 import { useEffect, useState } from "react";
 import { fetchInstagramContent, PlatformContent } from "@/services/platformContent";
-import SmartThumb from "@/components/SmartThumb";
 
 type PanelInstagramProps = {
   place: GooglePlace;

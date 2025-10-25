@@ -1,10 +1,9 @@
-import { Youtube, Play, Clock } from "lucide-react";
+import { Youtube, Play } from "lucide-react";
 import { PanelBase } from "./PanelBase";
 import { GooglePlace } from "@/services/googlePlaces";
 import { useEffect, useState } from "react";
 import { fetchYoutubeContent, PlatformContent } from "@/services/platformContent";
 import { formatCount } from "@/lib/format";
-import SmartThumb from "@/components/SmartThumb";
 
 type PanelYoutubeProps = {
   place: GooglePlace;

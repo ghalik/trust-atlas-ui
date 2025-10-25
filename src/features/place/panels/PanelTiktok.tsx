@@ -4,7 +4,6 @@ import { GooglePlace } from "@/services/googlePlaces";
 import { useEffect, useState } from "react";
 import { fetchTikTokContent, PlatformContent } from "@/services/platformContent";
 import { formatCount } from "@/lib/format";
-import SmartThumb from "@/components/SmartThumb";
 
 type PanelTiktokProps = {
   place: GooglePlace;
